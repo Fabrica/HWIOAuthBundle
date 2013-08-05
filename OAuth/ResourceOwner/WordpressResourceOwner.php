@@ -12,30 +12,29 @@
 namespace HWI\Bundle\OAuthBundle\OAuth\ResourceOwner;
 
 /**
- * StackExchangeResourceOwner
+ * WordpressResourceOwner
  *
  * @author Joseph Bielawski <stloyd@gmail.com>
  */
-class StackExchangeResourceOwner extends GenericOAuth2ResourceOwner
+class WordpressResourceOwner extends GenericOAuth2ResourceOwner
 {
     /**
      * {@inheritDoc}
      */
     protected $options = array(
-        'authorization_url'   => 'https://stackexchange.com/oauth',
-        'access_token_url'    => 'https://stackexchange.com/oauth/access_token',
-        'infos_url'           => 'https://api.stackexchange.com/2.0/me',
-
-        'scope'               => 'no_expiry',
+        'authorization_url'   => 'https://public-api.wordpress.com/oauth2/authorize',
+        'access_token_url'    => 'https://public-api.wordpress.com/oauth2/token',
+        'infos_url'           => 'https://public-api.wordpress.com/rest/v1/me',
     );
 
     /**
      * {@inheritDoc}
      */
     protected $paths = array(
-        'identifier'     => 'user_id',
-        'nickname'       => 'display_name',
+        'identifier'     => 'ID',
+        'nickname'       => 'username',
         'realname'       => 'display_name',
-        'profilepicture' => 'profile_image',
+        'email'          => 'email',
+        'profilepicture' => 'avatar_URL',
     );
 }
