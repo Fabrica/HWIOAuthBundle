@@ -16,7 +16,6 @@ use HWI\Bundle\OAuthBundle\Security\Http\ResourceOwnerMap;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * OAuthListener
@@ -32,22 +31,9 @@ class OAuthListener extends AbstractAuthenticationListener
     private $resourceOwnerMap;
 
     /**
-     * @var Router
-     */
-    private $router;
-
-    /**
      * @var array
      */
     private $checkPaths;
-
-    /**
-     * @param RouterInterface $router
-     */
-    public function setRouter(RouterInterface $router)
-    {
-        $this->router = $router;
-    }
 
     /**
      * @var ResourceOwnerMap $resourceOwnerMap
@@ -100,17 +86,9 @@ class OAuthListener extends AbstractAuthenticationListener
 
         $resourceOwner->isCsrfTokenValid($request->get('state'));
 
-        if ($resourceOwner instanceof YandexResourceOwner) {
-            $redirectUrl = $this->router->generate('hwo_oauth_redirect_point', array(
-                'service' => $resourceOwner->getName(),
-            ), true);
-        } else {
-            $redirectUrl = $this->httpUtils->createRequest($request, $checkPath)->getUri();
-        }
-
         $accessToken = $resourceOwner->getAccessToken(
             $request,
-            $redirectUrl
+            $this->httpUtils->createRequest($request, $checkPath)->getUri()
         );
 
         $token = new OAuthToken($accessToken);
