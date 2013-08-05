@@ -27,6 +27,7 @@ use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwner\YandexResourceOwner;
 
 /**
  * ConnectController
@@ -172,10 +173,16 @@ class ConnectController extends ContainerAware
         $session = $request->getSession();
         $key = $request->query->get('key', time());
 
+        if ($resourceOwner instanceof YandexResourceOwner) {
+            $redirectRoute = 'hwi_oauth_redirect_point';
+        } else {
+            $redirectRoute = 'hwi_oauth_connect_service';
+        }
+
         if ($resourceOwner->handles($request)) {
             $accessToken = $resourceOwner->getAccessToken(
                 $request,
-                $this->generate('hwi_oauth_connect_service', array('service' => $service), true)
+                $this->generate($redirectRoute, array('service' => $service), true)
             );
 
             // save in session
@@ -242,6 +249,32 @@ class ConnectController extends ContainerAware
         }
 
         return new RedirectResponse($this->container->get('hwi_oauth.security.oauth_utils')->getAuthorizationUrl($service));
+    }
+
+    /**
+     * @param Request $request
+     * @param string  $service
+     *
+     * @return RedirectResponse
+     */
+    public function redirectPointAction(Request $request, $service)
+    {
+        $hasUser = $this->container->get('security.context')->isGranted('IS_AUTHENTICATED_REMEMBERED');
+
+        $resourceOwner = $this->getResourceOwnerByName($service);
+
+        if (!$hasUser) {
+            $ownerMap = $this->container->get('hwi_oauth.resource_ownermap.'.$this->container->getParameter('hwi_oauth.firewall_name'));
+            $checkUri = $request->getUriForPath($ownerMap->getResourceOwnerCheckPath($service));
+            $redirectUrl = $checkUri . '?' . http_build_query($request->query->all(), '', '&');
+        } else {
+            $redirectUrl = $this->generate('hwi_oauth_connect_service', array_merge(
+                array('service' => $service),
+                $request->query->all()
+            ), true);
+        }
+
+        return new RedirectResponse($redirectUrl);
     }
 
     /**

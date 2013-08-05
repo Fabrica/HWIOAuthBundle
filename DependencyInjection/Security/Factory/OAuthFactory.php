@@ -137,6 +137,7 @@ class OAuthFactory extends AbstractFactory
             ->getDefinition($listenerId)
             ->addMethodCall('setResourceOwnerMap', array($this->getResourceOwnerMapReference($id)))
             ->addMethodCall('setCheckPaths', array($checkPaths))
+            ->addMethodCall('setRouter', array($container->get('router')))
         ;
 
         return $listenerId;

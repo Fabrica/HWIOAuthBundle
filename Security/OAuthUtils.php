@@ -13,6 +13,7 @@ namespace HWI\Bundle\OAuthBundle\Security;
 
 use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwner\YandexResourceOwner;
 
 /**
  * OAuthUtils
@@ -70,10 +71,14 @@ class OAuthUtils
         $resourceOwner = $this->getResourceOwner($name);
         $checkPath = $this->ownerMap->getResourceOwnerCheckPath($name);
 
-        if (!$connect || !$hasUser) {
-            $redirectUrl = $this->generateUri($checkPath);
-        } elseif (null === $redirectUrl) {
-            $redirectUrl = $this->generateUrl('hwi_oauth_connect_service', array('service' => $name), true);
+        if ($resourceOwner instanceof YandexResourceOwner) {
+            $redirectUrl = $this->generateUrl('hwi_oauth_redirect_point', array('service' => $name), true);
+        } else {
+            if (!$connect || !$hasUser) {
+                $redirectUrl = $this->generateUri($checkPath);
+            } elseif (null === $redirectUrl) {
+                $redirectUrl = $this->generateUrl('hwi_oauth_connect_service', array('service' => $name), true);
+            }
         }
 
         return $resourceOwner->getAuthorizationUrl($redirectUrl, $extraParameters);

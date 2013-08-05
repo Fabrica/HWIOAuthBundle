@@ -7,4 +7,8 @@
     <route id="hwi_oauth_service_redirect" pattern="/{service}">
         <default key="_controller">HWIOAuthBundle:Connect:redirectToService</default>
     </route>
+
+    <route id="hwi_oauth_redirect_point" pattern="/point/{service}">
+        <default key="_controller">HWIOAuthBundle:Connect:redirectPoint</default>
+    </route>
 </routes>
