@@ -248,6 +248,8 @@ class ConnectController extends ContainerAware
             $request->getSession()->set('_security.' . $providerKey . '.target_path', $targetUrl);
         }
 
+        $request->getSession()->set('_hwi_referer', $request->server->get('HTTP_REFERER'));
+
         return new RedirectResponse($this->container->get('hwi_oauth.security.oauth_utils')->getAuthorizationUrl($service));
     }
 
